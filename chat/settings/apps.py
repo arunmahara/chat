@@ -13,6 +13,9 @@ INSTALLED_APPS = [
     # third party apps
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'django_filters',
 
     # user defined
     'chat.apps.main',

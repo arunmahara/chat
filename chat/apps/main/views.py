@@ -1,13 +1,18 @@
-from rest_framework import viewsets
-from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.decorators import api_view
+
+from chat.core.response import generic_response
 
 
-def helloWorld(request):
-    return HttpResponse("Hello World!")
+@api_view(['GET'])
+def health(request):
+    result = {
+        'status': "healthy"
+    }
 
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    pass
+    return generic_response(
+        success=True,
+        message="Health check",
+        data=result,
+        status=status.HTTP_200_OK
+    )

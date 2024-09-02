@@ -17,16 +17,11 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# This environment variable has to be specified
-# Let it fail if not specified
-ENVIRON = os.environ.get("ENVIRON").lower()
-assert ENVIRON in ["prod", "dev", "local"]
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Loading other environment variables from .env
-load_dotenv(BASE_DIR / ".env")
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -63,3 +58,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Chat App',
+    'DESCRIPTION': 'Simple chat app',
+    'VERSION': '1.0.0',
+}
