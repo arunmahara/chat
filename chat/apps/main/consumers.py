@@ -6,6 +6,7 @@ from channels.generic.websocket import JsonWebsocketConsumer
 from django.db.models import Q
 
 from chat.apps.main.models import Chat, Room
+from chat.apps.main.util import get_or_none
 from chat.services.authentication import validate_jwt
 
 log = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class ChatWebsocketConsumer(JsonWebsocketConsumer):
 
         log.info(f"User {user.id} trying to connect to room {self.room_id}")
 
-        room = Room.objects.filter(name=self.room_id).first()
+        room = get_or_none(Room, name=self.room_id)
         if not room:
             self.close()
             log.warning(f"User {user.id} tried to connect to invalid room {self.room_id}")
@@ -116,8 +117,6 @@ class ChatWebsocketConsumer(JsonWebsocketConsumer):
         """
         Handle websocket disconnection.
         """
-        log.info(f"User {self.scope['user'].id} disconnected from room {self.room_id}")
-
         async_to_sync(self.channel_layer.group_discard)(
             self.room_id, self.channel_name
         )

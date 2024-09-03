@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 
 from chat.apps.main.forms import SignupForm, LoginForm
 from chat.apps.main.models import Room, Chat
+from chat.apps.main.util import get_or_none
 from chat.services.authentication import get_access_token, jwt_required
 from chat.core.response import generic_response
 
@@ -107,7 +108,7 @@ def create_room(request: HttpRequest) -> HttpResponse:
     Helper function to create a new chat room.
     """
     new_room = request.POST['room']
-    if Room.objects.filter(name=new_room).exists():
+    if get_or_none(Room, name=new_room):
         messages.warning(request, 'Room Already Exists')
         log.warning(f"User {request.user.username} tried to create an existing room: {new_room}")
     else:
@@ -137,7 +138,7 @@ def chat(request: HttpRequest, room_id: str) -> HttpResponse:
     """
     log.info(f"User {request.user.username} accessed chat room: {room_id}")
 
-    room = Room.objects.filter(name=room_id).first()
+    room = get_or_none(Room, name=room_id)
     if not room:
         messages.warning(request, 'Room Not Found')
         log.warning(f"User {request.user.username} tried to access a non-existent room: {room_id}")
