@@ -95,7 +95,26 @@ def home(request: HttpRequest) -> HttpResponse:
     """
     log.info(f"User {request.user.username} accessed home page")
     if request.method == 'POST':
-        return
+        return create_room(request)
 
     rooms = Room.objects.all()
     return render(request, 'home.html', {'rooms': rooms})
+
+
+@jwt_required
+def create_room(request: HttpRequest) -> HttpResponse:
+    """
+    Helper function to create a new chat room.
+    """
+    new_room = request.POST['room']
+    if Room.objects.filter(name=new_room).exists():
+        messages.warning(request, 'Room Already Exists')
+        log.warning(f"User {request.user.username} tried to create an existing room: {new_room}")
+    else:
+        room = Room(name=new_room, created_by=request.user)
+        room.save()
+
+        messages.success(request, 'Room Created')
+        log.info(f"User {request.user.username} created a new room: {new_room}")
+
+    return redirect('home')
