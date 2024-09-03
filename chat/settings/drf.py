@@ -1,3 +1,7 @@
+from .base import *
+from datetime import timedelta
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -6,7 +10,6 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         # 'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -15,4 +18,14 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'PAGE_SIZE': 100
+}
+
+SIMPLE_JWT = {
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": os.getenv("JWT_SIGNING_KEY"),
+    "VERIFYING_KEY": "",
+    "token_type": "access",
+    "JTI_CLAIM": None,
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    'USER_ID_CLAIM': 'id'
 }
