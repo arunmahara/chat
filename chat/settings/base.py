@@ -24,12 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Loading environment variables from .env
-if os.path.exists(os.path.join(BASE_DIR, ".env")):
-    config = dotenv_values()
-    for key, value in config.items():
-        os.environ[key] = value
-else:
-    raise Exception("Error loading .env file.")
+config = dotenv_values()
+for key, value in config.items():
+    os.environ[key] = value
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
