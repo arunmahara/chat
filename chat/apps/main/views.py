@@ -118,3 +118,13 @@ def create_room(request: HttpRequest) -> HttpResponse:
         log.info(f"User {request.user.username} created a new room: {new_room}")
 
     return redirect('home')
+
+
+@jwt_required
+def log_out(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user logout.
+    """
+    log.info(f"User {request.user.username} logged out")
+    logout(request)
+    return redirect('/')

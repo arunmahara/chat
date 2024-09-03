@@ -1,8 +1,9 @@
+from .base import *
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'chat/apps/main/templates/chat')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
