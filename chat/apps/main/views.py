@@ -86,3 +86,16 @@ def login(request: HttpRequest) -> HttpResponse:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
+
+
+@jwt_required
+def home(request: HttpRequest) -> HttpResponse:
+    """
+    Home view to create and list chat rooms.
+    """
+    log.info(f"User {request.user.username} accessed home page")
+    if request.method == 'POST':
+        return
+
+    rooms = Room.objects.all()
+    return render(request, 'home.html', {'rooms': rooms})

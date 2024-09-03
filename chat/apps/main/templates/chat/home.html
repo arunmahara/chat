@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <title>Chat</title>
+</head>
+<body>
+    <div class="col-sm-6 m-5 mt-3">
+        <h3 class="alert alert-info text-center p-1">👋Hi! {{request.user}}</h3>
+        <h3 class="alert alert-success text-center p-1">Create Chat Room</h3>
+        <form method="post" class="shadow p-4 mt-1" style="border-radius: 5px;">
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div id="msg" class="alert alert-{{ message.tags }} p-1 text-center">
+                        <small style="font-size: 15px;">{{ message }}</small>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <input type="text" placeholder="Room Name" class="form-control" name="room" required>
+            <input type="submit" value="Create" class="btn btn-success mt-2">
+        </form>
+    </div>
+
+    <div class="col-sm-6 m-5">
+        <div class="shadow p-4 mt-1" style="border-radius: 5px;">
+            <h3 class="alert alert-success text-center p-1">Join Chat Room</h3>
+            <ol class="rectangle-list">
+                {% for room in rooms %}
+                <li><a href="{% url 'chat' room.name %}">{{room.name}}</a></li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <div class="col-sm-6 m-5">
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <script>
+        setTimeout(function() { // auto hide message
+            jQuery('#msg').hide();
+        }, 2000);
+    </script>
+</body>
+</html>
