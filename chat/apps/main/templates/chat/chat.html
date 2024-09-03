@@ -31,6 +31,9 @@
             <div class="col-12 col-md-10 col-lg-8 mt-5">
                 <div class="shadow p-4 mt-1" style="border-radius: 5px;">
                     <h3 class="alert alert-info text-center p-1">Room: {{ room_name }}</h3>
+
+                    <input type="text" id="search-input" class="form-control mb-3" placeholder="Search messages...">
+
                     <div id="chat-box" class="form-control" style="height: 500px; overflow-y: scroll; font-size: 13px; text-align: left;" readonly>
                         {% for chat in chats %}
                             <div class="chat-message">
@@ -62,7 +65,11 @@
 
             ws.onmessage = function(event) {
                 const message = JSON.parse(event.data);
-                appendMessage(message.user, message.msg, message.msg_at);
+                if (message.type === 'search_results') {
+                    displaySearchResults(message.results);
+                } else {
+                    appendMessage(message.user, message.msg, message.msg_at);
+                }
             };
 
             document.getElementById('chat-send').onclick = sendMessage;
@@ -74,12 +81,20 @@
                 }
             });
 
+            document.getElementById('search-input').addEventListener('input', function(event) {
+                searchMessages(event.target.value);
+            });
+
             function sendMessage() {
                 const messageInputDom = document.getElementById('chat-input');
                 if (messageInputDom.value.trim() !== '') {
-                    ws.send(JSON.stringify({ 'msg': messageInputDom.value.trim() }));
+                    ws.send(JSON.stringify({'type': 'chat', 'msg': messageInputDom.value.trim()}));
                     messageInputDom.value = '';
                 }
+            }
+
+            function searchMessages(query) {
+                ws.send(JSON.stringify({ 'type': 'search', 'query': query }));
             }
 
             function appendMessage(user, msg, msg_at) {
@@ -100,6 +115,15 @@
                 `;
                 chatBox.appendChild(newMessage);
                 chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function displaySearchResults(results) {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = '';
+
+                results.forEach(result => {
+                    appendMessage(result.user, result.message, result.msg_at);
+                });
             }
 
             function convertTimestamps() {

@@ -3,6 +3,7 @@ import logging
 from asgiref.sync import async_to_sync
 from channels.exceptions import StopConsumer
 from channels.generic.websocket import JsonWebsocketConsumer
+from django.db.models import Q
 
 from chat.apps.main.models import Chat, Room
 from chat.services.authentication import validate_jwt
@@ -26,12 +27,14 @@ class ChatWebsocketConsumer(JsonWebsocketConsumer):
 
         log.info(f"User {user.id} trying to connect to room {self.room_id}")
 
-        if not Room.objects.filter(name=self.room_id).exists():
+        room = Room.objects.filter(name=self.room_id).first()
+        if not room:
             self.close()
             log.warning(f"User {user.id} tried to connect to invalid room {self.room_id}")
             return
 
         self.scope['user'] = user
+        self.room = room
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_id,
@@ -45,22 +48,60 @@ class ChatWebsocketConsumer(JsonWebsocketConsumer):
         """
         Handle receiving JSON data from websocket.
         """
-        if self.scope['user'].is_authenticated:
-            message = data['msg']
-            room = Room.objects.get(name=self.room_id)
-            user = self.scope['user']
-
-            chat = Chat(room=room, user=user, message=message)
-            chat.save()
-
-            async_to_sync(self.channel_layer.group_send)(self.room_id, {
-                'type': 'send.data',
-                'msg': message,
-                'msg_at': str(chat.created_at),
-                'user': user.username
-            })
-        else:
+        if not self.scope['user'].is_authenticated:
             self.close()
+            return
+
+        data_type = data.get('type')
+        if data_type == 'chat':
+            self.handle_message(data['msg'])
+        elif data_type == 'search':
+            self.handle_search(data['query'])
+        else:
+            log.warning(f"Unknown message type received: {data}")
+            self.close()
+            return
+
+    def handle_message(self, message: str) -> None:
+        """
+        Handle incoming chat message.
+        """
+        user = self.scope['user']
+
+        chat = Chat(room=self.room, user=user, message=message)
+        chat.save()
+
+        async_to_sync(self.channel_layer.group_send)(self.room_id, {
+            'type': 'send.data',
+            'msg': message,
+            'msg_at': str(chat.created_at),
+            'user': user.username
+        })
+
+    def handle_search(self, query: str) -> None:
+        """
+        Handle search query and send results back to the client.
+        """
+        if query:
+            chats = Chat.objects.filter(
+                Q(room=self.room) & (Q(message__icontains=query) | Q(user__username__icontains=query))
+            ).order_by('created_at')
+        else:
+            chats = Chat.objects.filter(room=self.room).order_by('created_at')
+
+        results = [
+            {
+                'user': chat.user.username,
+                'message': chat.message,
+                'msg_at': str(chat.created_at)
+            }
+            for chat in chats
+        ]
+
+        self.send_json({
+            'type': 'search_results',
+            'results': results
+        })
 
     def send_data(self, data) -> None:
         """
