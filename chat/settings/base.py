@@ -78,3 +78,16 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Simple chat app',
     'VERSION': '1.0.0',
 }
+
+
+REDIS_URI = os.getenv("REDIS_URI")
+
+# channel redis setting
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(f"{REDIS_URI}/0")],
+        },
+    }
+}
