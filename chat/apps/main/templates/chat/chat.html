@@ -56,6 +56,52 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const room_id = JSON.parse(document.getElementById('room_id').textContent);
+            const token = JSON.parse(document.getElementById('token').textContent);
+            const ws = new WebSocket(`ws://${window.location.host}/ws/${room_id}/?token=${token}`);
+
+            ws.onmessage = function(event) {
+                const message = JSON.parse(event.data);
+                appendMessage(message.user, message.msg, message.msg_at);
+            };
+
+            document.getElementById('chat-send').onclick = sendMessage;
+
+            document.getElementById('chat-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                    event.preventDefault();
+                }
+            });
+
+            function sendMessage() {
+                const messageInputDom = document.getElementById('chat-input');
+                if (messageInputDom.value.trim() !== '') {
+                    ws.send(JSON.stringify({ 'msg': messageInputDom.value.trim() }));
+                    messageInputDom.value = '';
+                }
+            }
+
+            function appendMessage(user, msg, msg_at) {
+                const chatBox = document.getElementById('chat-box');
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('chat-message');
+
+                const date = new Date(msg_at);
+                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+                const formattedDate = date.toLocaleString('en-US', options);
+
+                newMessage.innerHTML = `
+                    <div class="chat-message-header">
+                        <strong>${user}</strong>
+                        <small>${formattedDate}</small>
+                    </div>
+                    <div>${msg}</div>
+                `;
+                chatBox.appendChild(newMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
             function convertTimestamps() {
                 const timestamps = document.querySelectorAll('.chat-timestamp');
                 timestamps.forEach(timestampElement => {
