@@ -1,7 +1,18 @@
-
 # Application definition
 
 INSTALLED_APPS = [
+    # user defined
+    'chat.apps.main',
+
+    # third party apps
+    'rest_framework',
+    'corsheaders',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'django_filters',
+    'daphne',
+    'channels',
+
     # django apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -10,13 +21,4 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # third party apps
-    'rest_framework',
-    'corsheaders',
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
-    'django_filters',
-
-    # user defined
-    'chat.apps.main',
 ]

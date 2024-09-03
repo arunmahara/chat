@@ -15,26 +15,39 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import dotenv_values
+from distutils.util import strtobool
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Loading other environment variables from .env
-load_dotenv()
+
+# Loading environment variables from .env
+if os.path.exists(os.path.join(BASE_DIR, ".env")):
+    config = dotenv_values()
+    for key, value in config.items():
+        os.environ[key] = value
+else:
+    raise Exception("Error loading .env file.")
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(strtobool(os.getenv('DEBUG', 'True')))
 
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", []).split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", []).split(",")
 
 
 ROOT_URLCONF = 'chat.urls'
 
-WSGI_APPLICATION = 'chat.wsgi.application'
+# WSGI_APPLICATION = 'chat.wsgi.application'
+ASGI_APPLICATION = 'chat.asgi.application'
 
 
 # Internationalization
