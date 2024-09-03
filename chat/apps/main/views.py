@@ -7,6 +7,9 @@ from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.decorators import api_view
 
+from chat.apps.main.forms import SignupForm
+from chat.apps.main.models import Room, Chat
+from chat.services.authentication import get_access_token, jwt_required
 from chat.core.response import generic_response
 
 log = logging.getLogger(__name__)
@@ -28,3 +31,28 @@ def health(request: HttpRequest) -> HttpResponse:
         data=result,
         status=status.HTTP_200_OK
     )
+
+
+def signup(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user signup.
+    """
+    if request.user.is_authenticated:
+        log.info(f"Authenticated user {request.user.username} tried to access signup page")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            request.session['access_token'] = get_access_token(user)
+            log.info(f"New user {user.username} signed up successfully")
+
+            return redirect('home')
+        else:
+            log.warning("Signup form is invalid")
+    else:
+        form = SignupForm()
+
+    return render(request, 'signup.html', {'form': form})
