@@ -5,9 +5,69 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <title>Chat</title>
+    <style>
+        ol {
+            counter-reset: li;
+            list-style: none;
+            *list-style: decimal;
+            font: 25px 'trebuchet MS', 'lucida sans';
+            margin-bottom: 6em;
+            text-shadow: 0 1px 0 rgba(255,255,255,.5);
+        }
+
+        .rectangle-list{
+        margin: 0;
+        padding: 0;
+        }
+
+        .rectangle-list a{
+        position: relative;
+        display: block;
+        padding: .4em .4em .4em .8em;
+        *padding: .4em;
+        margin: .5em 0 .5em 2.5em;
+        background: #ddd;
+        color: #444;
+        text-decoration: none;
+        transition: all .3s ease-out;
+        }
+
+        .rectangle-list a:hover{
+        background: #eee;
+        }
+
+        .rectangle-list a:before{
+        content: counter(li);
+        counter-increment: li;
+        position: absolute;
+        left: -2.5em;
+        top: 50%;
+        margin-top: -1em;
+        background: #fa8072;
+        height: 2em;
+        width: 2em;
+        line-height: 2em;
+        text-align: center;
+        font-weight: bold;
+        }
+
+        .rectangle-list a:after{
+        position: absolute;
+        content: '';
+        border: .5em solid transparent;
+        left: -1em;
+        top: 50%;
+        margin-top: -.5em;
+        transition: all .3s ease-out;
+        }
+
+        .rectangle-list a:hover:after{
+        left: -.5em;
+        border-left-color: #fa8072;
+        }
+    </style>
 </head>
 <body>
     <div class="col-sm-6 m-5 mt-3">
