@@ -128,3 +128,28 @@ def log_out(request: HttpRequest) -> HttpResponse:
     log.info(f"User {request.user.username} logged out")
     logout(request)
     return redirect('/')
+
+
+@jwt_required
+def chat(request: HttpRequest, room_id: str) -> HttpResponse:
+    """
+    Chat view to display messages in a room.
+    """
+    log.info(f"User {request.user.username} accessed chat room: {room_id}")
+
+    room = Room.objects.filter(name=room_id).first()
+    if not room:
+        messages.warning(request, 'Room Not Found')
+        log.warning(f"User {request.user.username} tried to access a non-existent room: {room_id}")
+        return redirect('home')
+
+    chats = Chat.objects.filter(room=room).order_by('created_at')
+    return render(
+        request,
+        'chat.html',
+        {
+            'room_name': room_id,
+            'chats': chats,
+            'access_token': request.session.get('access_token')
+        }
+    )

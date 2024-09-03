@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link href="https://fontawesomefree/css/all.min.css" rel="stylesheet" type="text/css">
+    <style>
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .chat-message-header {
+            display: flex;
+            align-items: center;
+        }
+        .chat-message strong {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .chat-message small {
+            font-size: 0.8em;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 mt-5">
+                <div class="shadow p-4 mt-1" style="border-radius: 5px;">
+                    <h3 class="alert alert-info text-center p-1">Room: {{ room_name }}</h3>
+                    <div id="chat-box" class="form-control" style="height: 500px; overflow-y: scroll; font-size: 13px; text-align: left;" readonly>
+                        {% for chat in chats %}
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <strong>{{ chat.user }}</strong>
+                                    <small class="chat-timestamp" data-timestamp="{{ chat.created_at|date:'c' }}">{{ chat.created_at }}</small>
+                                </div>
+                                <div>{{ chat.message }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <br>
+                    <input type="text" id="chat-input" size="63" placeholder="Message..." class="form-control">
+                    <br>
+                    <input type="submit" value="Send" id="chat-send" class="btn btn-success px-3">
+                    <a href="{% url 'home' %}" class="btn btn-primary px-3 mx-3">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ room_name|json_script:"room_id" }}
+    {{ access_token|json_script:"token" }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function convertTimestamps() {
+                const timestamps = document.querySelectorAll('.chat-timestamp');
+                timestamps.forEach(timestampElement => {
+                    const utcDate = new Date(timestampElement.dataset.timestamp);
+                    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+                    const localDate = utcDate.toLocaleString('en-US', options);
+                    timestampElement.textContent = localDate;
+                });
+            }
+
+            convertTimestamps();
+        });
+    </script>
+</body>
+</html>
