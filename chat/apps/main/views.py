@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.decorators import api_view
 
-from chat.apps.main.forms import SignupForm
+from chat.apps.main.forms import SignupForm, LoginForm
 from chat.apps.main.models import Room, Chat
 from chat.services.authentication import get_access_token, jwt_required
 from chat.core.response import generic_response
@@ -56,3 +56,33 @@ def signup(request: HttpRequest) -> HttpResponse:
         form = SignupForm()
 
     return render(request, 'signup.html', {'form': form})
+
+
+def login(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user login.
+    """
+    if request.user.is_authenticated:
+        log.info(f"Authenticated user {request.user.username} tried to access login page")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = LoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            username: str = form.cleaned_data['username']
+            password: str = form.cleaned_data['password']
+
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                request.session['access_token'] = get_access_token(user)
+                log.info(f"User {username} logged in successfully")
+
+                return redirect('home')
+            else:
+                log.warning(f"Authentication failed for user {username}")
+        else:
+            log.warning("Login form is invalid")
+    else:
+        form = LoginForm()
+
+    return render(request, 'login.html', {'form': form})

@@ -5,5 +5,6 @@ from chat.apps.main import views
 urlpatterns = [
     path('health/', views.health, name='health'),
 
+    path('', views.login, name='login'),
     path('signup/', views.signup, name='signup'),
 ]
