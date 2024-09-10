@@ -31,14 +31,9 @@ REDIS_URI=<redis_uri>
 ```
 
 ### 3. Building and Running the Application
-Use the provided build.sh script to build and run the web service in Docker:
+Run the web service in Docker:
 ```commandline
-sh build.sh
-```
-
-You can set the `detached_mode` variable to `true` to run the container in detached mode:
-```commandline
-detached_mode=true sh build.sh
+sudo docker-compose up
 ```
 
 `Note:` If you have Redis installed and running locally, make sure to stop the Redis service before starting the Docker container to avoid conflicts. You can stop Redis with the following command:
